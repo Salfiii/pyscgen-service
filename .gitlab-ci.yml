@@ -1,0 +1,8 @@
+include:
+  - project: 'pythonwebservices/ci-cd'
+    ref: master
+    file: '/pipelines/.gitlab-ci-python-okd.yml'
+
+variables:
+  APP_NAME: "template"
+  

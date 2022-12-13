@@ -1,0 +1,78 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.editor-container {
+  margin: auto;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.options-container {
+  margin: auto;
+  max-width: 1200px;
+}
+
+.ace_editor {
+  margin: auto;
+}
+
+.about h2 {
+  text-align: center;
+}
+
+.about a {
+  color: wheat;
+}
+
+.about {
+  padding: 1em;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 800px;
+  text-align: justify;
+}
+
+#github-logo {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+@media only screen and (min-width: 1000px) {
+  .editor-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.editor {
+  max-width: 600px;
+  width: 90%;
+  /* padding: 1em; */
+  margin: auto;
+  /* margin-left: auto;
+  margin-right: auto; */
+}
+.option {
+  max-width: 600px;
+  width: 90%;
+  margin: auto;
+  text-align: left;
+}
+
+.ace_editor {
+  width: 100% !important;
+}
