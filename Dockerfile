@@ -1,3 +1,4 @@
+# ------------------------------- PYTHON BACKEND -------------------------------------
 FROM python:3.10-slim-buster
 
 LABEL maintainer="Florian Salfenmoser <florian.salfenmoser.dev@outlook.de>"
@@ -60,8 +61,6 @@ RUN mkdir -p ${POETRY_VIRTUALENVS_PATH}
 #RUN find /app -type f -exec chmod 644 {} \;
 #RUN find ${POETRY_VIRTUALENVS_PATH} -type d -exec chmod 755 {} \;
 #RUN find ${POETRY_VIRTUALENVS_PATH} -type f -exec chmod 644 {} \;
-COPY start.sh /app/start.sh
-COPY ./imageversion.txt /app/imageversion.txt
 WORKDIR /app/
 
 # Create the tmp directorys for file processing
@@ -91,7 +90,7 @@ ENV KEEPALIVE=15
 ENV MAX_REQUESTS=0
 ENV WEB_CONCURRENCY=1
 ENV HOST=0.0.0.0
-ENV PORT=8080
+ENV SERVICE_PORT=8080
 ENV LOG_LEVEL=error
 
 # set timezone
@@ -106,7 +105,6 @@ RUN poetry install --without dev
 
 # Copy application contents to the container
 COPY ./app /app/app
-COPY version.txt /app/version.txt
 # Set the pythonpath and path that python can find the custom modules in the app-folder for import
 ENV PATH=$PATH:/app/app
 ENV PYTHONPATH=/app/app
@@ -117,7 +115,7 @@ ENV IS_LOCAL=False
 # FastAPI Docker settings:
 ENV WEB_CONCURRENCY=1
 # Expose the port to the outside to make the API available outside the docker container
-EXPOSE $PORT
+EXPOSE $SERVICE_PORT
 
 # https://stackoverflow.com/questions/53763029/gunicorn-not-found-when-running-a-docker-container-with-venv
 WORKDIR /app
@@ -129,3 +127,18 @@ CMD /.venv/activate
 CMD [ "gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "--config", "/app/app/gunicorn_conf.py", "main:app"]
 # Start Gunicorn
 #CMD gunicorn -k "$WORKER_CLASS" -c "$GUNICORN_CONF" "$APP_MODULE"
+
+# ------------------------------- NODE FRONTEND-------------------------------------
+# https://docs.docker.com/language/nodejs/build-images/
+FROM node:12.18.1
+ENV NODE_ENV=production
+ENV GUI_PORT=3000
+RUN mkdir -p /app/gui
+WORKDIR /app/gui
+
+COPY ["gui/public", "gui/src", "gui/LICENSE", "gui/package.json", "gui/package-lock.json","gui/tsconfig.json", "./"]
+
+EXPOSE $GUI_PORT
+
+RUN npm install --production
+CMD ["npm", "run", "prod"]

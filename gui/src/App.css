@@ -15,14 +15,14 @@
 
 .editor-container {
   margin: auto;
-  max-width: 1200px;
+  max-width: 1800px;
   display: grid;
   grid-template-columns: 1fr;
 }
 
 .options-container {
   margin: auto;
-  max-width: 1200px;
+  max-width: 1800px;
 }
 
 .ace_editor {
@@ -54,7 +54,7 @@
 
 @media only screen and (min-width: 1000px) {
   .editor-container {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
@@ -71,6 +71,12 @@
   width: 90%;
   margin: auto;
   text-align: left;
+}
+
+.option-text {
+  background-color: #121212;
+  color: antiquewhite;
+  border-color: #282c34;
 }
 
 .ace_editor {
