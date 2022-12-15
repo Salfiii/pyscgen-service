@@ -1,3 +1,4 @@
+#!/usr/bin/env -S docker build . --tag=Salfii/pyscgen-service:latest --network=host --file
 # ------------------------------- PYTHON BACKEND -------------------------------------
 FROM python:3.10-slim-buster
 
@@ -130,15 +131,17 @@ CMD [ "gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "--config",
 
 # ------------------------------- NODE FRONTEND-------------------------------------
 # https://docs.docker.com/language/nodejs/build-images/
-FROM node:12.18.1
+FROM node:19.3.0
 ENV NODE_ENV=production
 ENV GUI_PORT=3000
 RUN mkdir -p /app/gui
 WORKDIR /app/gui
 
-COPY ["gui/public", "gui/src", "gui/LICENSE", "gui/package.json", "gui/package-lock.json","gui/tsconfig.json", "./"]
+COPY ./gui ./
 
 EXPOSE $GUI_PORT
 
+RUN npm install --save typescript @types/node
 RUN npm install --production
-CMD ["npm", "run", "prod"]
+WORKDIR /app/gui/src
+RUN npm start -- --port $GUI_PORT

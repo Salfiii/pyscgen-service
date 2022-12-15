@@ -21,11 +21,6 @@ type RequestOptions = {
   namespace: string;
 };
 
-type RequestBody = {
-  data: string;
-  options: RequestOptions;
-};
-
 function App() {
   const [options, setOptions] = useState(defaultOptions);
   const [jsonObject, setJsonObject] = useState(defaultJsonObject);

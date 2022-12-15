@@ -15,6 +15,8 @@ origins = [
     "localhost:" + str(PORT),
     "http://127.0.0.1:" + str(PORT),
     "http://localhost:" + str(PORT),
+    "https://127.0.0.1:" + str(PORT),
+    "https://localhost:" + str(PORT),
     "http://localhost:3000",
     "localhost:3000"
 ]
