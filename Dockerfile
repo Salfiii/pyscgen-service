@@ -1,6 +1,6 @@
 #!/usr/bin/env -S docker build . --tag=Salfii/pyscgen-service:latest --network=host --file
 # ------------------------------- PYTHON BACKEND -------------------------------------
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-buster as service
 
 LABEL maintainer="Florian Salfenmoser <florian.salfenmoser.dev@outlook.de>"
 LABEL build-date=$BUILD_DATE
@@ -90,8 +90,8 @@ ENV GRACEFUL_TIMEOUT=120
 ENV KEEPALIVE=15
 ENV MAX_REQUESTS=0
 ENV WEB_CONCURRENCY=1
-ENV HOST=0.0.0.0
-ENV SERVICE_PORT=8080
+ENV HOST=localhost
+ENV SERVICE_PORT=8001
 ENV LOG_LEVEL=error
 
 # set timezone
@@ -116,7 +116,7 @@ ENV IS_LOCAL=False
 # FastAPI Docker settings:
 ENV WEB_CONCURRENCY=1
 # Expose the port to the outside to make the API available outside the docker container
-EXPOSE $SERVICE_PORT
+# EXPOSE $SERVICE_PORT
 
 # https://stackoverflow.com/questions/53763029/gunicorn-not-found-when-running-a-docker-container-with-venv
 WORKDIR /app
@@ -131,17 +131,24 @@ CMD [ "gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "--config",
 
 # ------------------------------- NODE FRONTEND-------------------------------------
 # https://docs.docker.com/language/nodejs/build-images/
-FROM node:19.3.0
+FROM node:19.3.0 as node
 ENV NODE_ENV=production
-ENV GUI_PORT=3000
 RUN mkdir -p /app/gui
 WORKDIR /app/gui
 
 COPY ./gui ./
 
-EXPOSE $GUI_PORT
+#  $GUI_PORT
 
 RUN npm install --save typescript @types/node
 RUN npm install --production
-WORKDIR /app/gui/src
-RUN npm start -- --port $GUI_PORT
+RUN npx browserslist@latest --update-db
+RUN npm run build
+
+# NGINX
+FROM nginx:1.23.3 as nginx
+ENV GUI_PORT=80
+ENV SERVICE_PORT=8001
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+COPY --from=node /app/gui/build /usr/share/nginx/html
