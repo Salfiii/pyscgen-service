@@ -31,7 +31,7 @@ ENV PYTHONUNBUFFERED=1 \
     \
     # poetry
     # https://python-poetry.org/docs/configuration/#using-environment-variables
-    POETRY_VERSION=1.2.0a2 \
+    POETRY_VERSION=1.3.0 \
     # make poetry install to this location
     POETRY_HOME="/opt/poetry" \
     # make poetry create the virtual environment in the project's root
@@ -92,16 +92,15 @@ ENV MAX_REQUESTS=0
 ENV WEB_CONCURRENCY=1
 ENV HOST=localhost
 ENV SERVICE_PORT=8001
+ENV PORT=$SERVICE_PORT
 ENV LOG_LEVEL=error
 
-# set timezone
-ENV TZ Europe/Berlin
 # Copy the conda environment infos (the "app"-Folder already exists, use this one to include everythin you need!)
 COPY ./poetry.lock poetry.lock
 COPY ./pyproject.toml pyproject.toml
 # Install the python packages
 WORKDIR app/
-ENV POETRY_EVN=fastapi-template
+ENV POETRY_ENV=pyscgen-service
 RUN poetry install --without dev
 
 # Copy application contents to the container
@@ -116,7 +115,7 @@ ENV IS_LOCAL=False
 # FastAPI Docker settings:
 ENV WEB_CONCURRENCY=1
 # Expose the port to the outside to make the API available outside the docker container
-# EXPOSE $SERVICE_PORT
+EXPOSE $SERVICE_PORT
 
 # https://stackoverflow.com/questions/53763029/gunicorn-not-found-when-running-a-docker-container-with-venv
 WORKDIR /app
