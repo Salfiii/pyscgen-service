@@ -91,7 +91,9 @@ ENV KEEPALIVE=15
 ENV MAX_REQUESTS=0
 ENV WEB_CONCURRENCY=1
 ENV HOST=localhost
-ENV SERVICE_PORT=8001
+ARG SERVICE_PORT
+ENV SERVICE_PORT $SERVICE_PORT
+EXPOSE $SERVICE_PORT
 ENV PORT=$SERVICE_PORT
 ENV LOG_LEVEL=error
 
@@ -127,27 +129,3 @@ CMD /.venv/activate
 CMD [ "gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "--config", "/app/app/gunicorn_conf.py", "main:app"]
 # Start Gunicorn
 #CMD gunicorn -k "$WORKER_CLASS" -c "$GUNICORN_CONF" "$APP_MODULE"
-
-# ------------------------------- NODE FRONTEND-------------------------------------
-# https://docs.docker.com/language/nodejs/build-images/
-FROM node:19.3.0 as node
-ENV NODE_ENV=production
-RUN mkdir -p /app/gui
-WORKDIR /app/gui
-
-COPY ./gui ./
-
-#  $GUI_PORT
-
-RUN npm install --save typescript @types/node
-RUN npm install --production
-RUN npx browserslist@latest --update-db
-RUN npm run build
-
-# NGINX
-FROM nginx:1.23.3 as nginx
-ENV GUI_PORT=80
-ENV SERVICE_PORT=8001
-COPY ./nginx.conf /etc/nginx/nginx.conf
-
-COPY --from=node /app/gui/build /usr/share/nginx/html

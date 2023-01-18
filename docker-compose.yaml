@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  backend:
+    build:
+      context: .
+      args:
+        - SERVICE_PORT=8001
+      dockerfile: Dockerfile_backend
+    ports:
+      - "8001:8001"
+  gui:
+    build:
+      context: .
+      args:
+        - REACT_APP_SERVICE_PORT=8001
+      dockerfile: Dockerfile_frontend
+    ports:
+      - "8002:80"

@@ -1,0 +1,29 @@
+#!/usr/bin/env -S docker build . --tag=Salfii/pyscgen-service:latest --network=host --file
+# ------------------------------- NODE FRONTEND-------------------------------------
+# https://docs.docker.com/language/nodejs/build-images/
+ARG REACT_APP_SERVICE_PORT
+FROM node:19.3.0 as node
+ENV NODE_ENV=production
+RUN mkdir -p /app/gui
+WORKDIR /app/gui
+
+COPY ./gui ./
+
+#  $GUI_PORT
+ARG REACT_APP_SERVICE_PORT
+ENV REACT_APP_SERVICE_PORT=$REACT_APP_SERVICE_PORT
+
+RUN npm install --save typescript @types/node
+RUN npm install --production
+RUN npx browserslist@latest --update-db
+RUN npm run build
+
+# NGINX
+ARG REACT_APP_SERVICE_PORT
+RUN echo "REACT_APP_SERVICE_PORT: $REACT_APP_SERVICE_PORT"
+FROM nginx:1.23.3 as nginx
+COPY ./nginx.conf /etc/nginx/nginx.conf
+ARG REACT_APP_SERVICE_PORT
+ENV REACT_APP_SERVICE_PORT=$REACT_APP_SERVICE_PORT
+EXPOSE $REACT_APP_GUI_PORT
+COPY --from=node /app/gui/build /usr/share/nginx/html

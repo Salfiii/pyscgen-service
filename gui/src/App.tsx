@@ -8,7 +8,8 @@ import "ace-builds/src-noconflict/mode-python";
 import "ace-builds/src-noconflict/theme-tomorrow_night";
 import "ace-builds/src-noconflict/mode-yaml";
 
-const apiUrl = "http://localhost:8001";
+const apiUrl = "http://localhost:" + process.env.REACT_APP_SERVICE_PORT;
+console.log(apiUrl)
 const defaultJsonObject = '[{\n\t"foo": 5, \n\t"barBaz": "hello", \n\t"value": "string"\n},\n{\n\t"foo": 5, \n\t"barBaz": "hello"\n}]';
 const defaultNamespace = "com.pyscgen.avro"
 const defaultClassName = "PyScGenClass"
