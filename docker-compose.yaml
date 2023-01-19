@@ -8,12 +8,13 @@ services:
         - SERVICE_PORT=8001
       dockerfile: Dockerfile_backend
     ports:
-      - "8001:8001"
+      - "50001:8001"
   gui:
     build:
       context: .
       args:
-        - REACT_APP_SERVICE_PORT=8001
+        - REACT_APP_SERVICE_PORT=50001
+        - REACT_APP_GUI_PORT=8002
       dockerfile: Dockerfile_frontend
     ports:
       - "8002:80"

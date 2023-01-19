@@ -5,7 +5,7 @@ import os
 config_file = os.getenv("GUNICORN_CONF", "DEFAULT")
 workers_per_core_str = os.getenv("WORKERS_PER_CORE", "1")
 web_concurrency_str = os.getenv("WEB_CONCURRENCY", "1")
-host = os.getenv("HOST", "localhost")
+host = os.getenv("HOST", "0.0.0.0")
 port = os.getenv("PORT", "8001")
 bind_env = os.getenv("BIND", None)
 use_loglevel = os.getenv("LOG_LEVEL", "info")

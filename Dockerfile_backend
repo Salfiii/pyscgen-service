@@ -1,5 +1,6 @@
 #!/usr/bin/env -S docker build . --tag=Salfii/pyscgen-service:latest --network=host --file
 # ------------------------------- PYTHON BACKEND -------------------------------------
+ARG SERVICE_PORT
 FROM python:3.10-slim-buster as service
 
 LABEL maintainer="Florian Salfenmoser <florian.salfenmoser.dev@outlook.de>"
@@ -90,12 +91,14 @@ ENV GRACEFUL_TIMEOUT=120
 ENV KEEPALIVE=15
 ENV MAX_REQUESTS=0
 ENV WEB_CONCURRENCY=1
-ENV HOST=localhost
+# ENV HOST=localhost
 ARG SERVICE_PORT
-ENV SERVICE_PORT $SERVICE_PORT
+ENV SERVICE_PORT=$SERVICE_PORT
+# Expose the port to the outside to make the API available outside the docker container
 EXPOSE $SERVICE_PORT
 ENV PORT=$SERVICE_PORT
 ENV LOG_LEVEL=error
+RUN echo "SERVICE_PORT: $SERVICE_PORT; PORT: $PORT"
 
 # Copy the conda environment infos (the "app"-Folder already exists, use this one to include everythin you need!)
 COPY ./poetry.lock poetry.lock
@@ -114,10 +117,6 @@ ENV PYTHONPATH=/app/app
 # If other global env-variables are needed, set them here.
 # Environment dependen variables should be set in the helm/%env%_values.yml files
 ENV IS_LOCAL=False
-# FastAPI Docker settings:
-ENV WEB_CONCURRENCY=1
-# Expose the port to the outside to make the API available outside the docker container
-EXPOSE $SERVICE_PORT
 
 # https://stackoverflow.com/questions/53763029/gunicorn-not-found-when-running-a-docker-container-with-venv
 WORKDIR /app
