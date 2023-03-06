@@ -17,11 +17,6 @@ const defaultOptions = { name: defaultClassName, namespace: defaultNamespace };
 const loadingMessage = "# loading...";
 const invalidJsonMessage = "# invalid json";
 
-type RequestOptions = {
-  name: string;
-  namespace: string;
-};
-
 function App() {
   const [options, setOptions] = useState(defaultOptions);
   const [jsonObject, setJsonObject] = useState(defaultJsonObject);
