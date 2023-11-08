@@ -15,14 +15,15 @@
 
 .editor-container {
   margin: auto;
-  max-width: 1800px;
+  max-width: 2200px;
   display: grid;
   grid-template-columns: 1fr;
+  align-items: flex-start;
 }
 
 .options-container {
   margin: auto;
-  max-width: 1800px;
+  max-width: 2200px;
 }
 
 .ace_editor {
@@ -54,7 +55,7 @@
 
 @media only screen and (min-width: 1000px) {
   .editor-container {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
 

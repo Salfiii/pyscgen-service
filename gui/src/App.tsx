@@ -9,19 +9,21 @@ import "ace-builds/src-noconflict/theme-tomorrow_night";
 import "ace-builds/src-noconflict/mode-yaml";
 
 const apiUrl = "http://localhost:" + process.env.REACT_APP_SERVICE_PORT;
-console.log(apiUrl)
 const defaultJsonObject = '[{\n\t"foo": 5, \n\t"barBaz": "hello", \n\t"value": "string"\n},\n{\n\t"foo": 5, \n\t"barBaz": "hello"\n}]';
 const defaultNamespace = "com.pyscgen.avro"
 const defaultClassName = "PyScGenClass"
 const defaultOptions = { name: defaultClassName, namespace: defaultNamespace };
-const loadingMessage = "# loading...";
-const invalidJsonMessage = "# invalid json";
+const loadingMessage = '{"message": "# loading..."}';
+const invalidJsonMessage = '{"message": "# invalid json"}';
 
 function App() {
   const [options, setOptions] = useState(defaultOptions);
   const [jsonObject, setJsonObject] = useState(defaultJsonObject);
   const [pydanticModel, setPydanticModel] = useState("");
-  const [avroSchema, setAvroSchema] = useState("");
+  const [avroSchema, setAvroSchema] = useState("{}");
+  const [dummyData, setDummyData] = useState("[]");
+  const [avroValidationResult, setAvroValidationResult] = useState(false);
+  const [avroValidationMessage, setAvroValidationMessage] = useState("");
 
   useEffect(() => {
     if (validJson(jsonObject)) {
@@ -30,6 +32,9 @@ function App() {
     } else {
       setPydanticModel(invalidJsonMessage);
       setAvroSchema(invalidJsonMessage);
+      setDummyData("[]")
+      setAvroValidationResult(false)
+      setAvroValidationMessage("")
     }
   }, [jsonObject, options]);
 
@@ -52,7 +57,7 @@ function App() {
     name: string,
     namespace: string
   ) {
-    console.log("fetching");
+    console.log("fetching schemas...");
     setPydanticModel(loadingMessage);
     const url = new URL(apiUrl + "/" + modelType + "/schema/generate?name=" + name + "&namespace=" + namespace);
     const opts = {
@@ -71,20 +76,90 @@ function App() {
         return response.json();
       })
       .then((data) => {
-        console.log(data)
+        //console.log(data)
         if (modelType === "pydantic") {
           setPydanticModel(data);
         }
         else {
-          setAvroSchema(JSON.stringify(data, null, 4))
+          let avro_schema = JSON.stringify(data, null, 4)
+          setAvroSchema(avro_schema)
+          try {
+            generateDummyData(avro_schema)
+          }
+          catch{
+            setDummyData('[{"message": "Could not generate dummy data"}]')
+          }
+          try {
+            validateAvro(avro_schema, JSON.parse(jsonObject))
+          }
+          catch{
+            setAvroValidationResult(false)
+          }
         }
+      });
+  }
 
+    function generateDummyData(
+        avro_schema: string
+  ) {
+    console.log("generating dummy data...");
+    setDummyData(loadingMessage);
+    const url = new URL(apiUrl + "/avro/data/generate");
+    const opts = {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: avro_schema,
+    };
+
+    fetch(url.toString(), opts)
+      .then((response) => {
+        if (response.status === 422) {
+          setDummyData("[]");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        //console.log(data)
+        setDummyData(JSON.stringify(data, null, 4))
+      });
+  }
+
+    function validateAvro(
+        avro_schema: string,
+        records: [string]
+  ) {
+    console.log("generating dummy data...");
+    setAvroValidationResult(false);
+    const url = new URL(apiUrl + "/avro/schema/validate");
+    const opts: RequestInit = {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify({
+        "avro_schema": JSON.parse(avro_schema),
+        "records": records
+      })
+    };
+    fetch(url.toString(), opts)
+      .then((response) => {
+        if (response.status === 422) {
+          setAvroValidationResult(false);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        //console.log(data)
+        setAvroValidationResult(data.validation_result===true)
+        setAvroValidationMessage(data.message)
       });
   }
 
   return (
     <div className="App">
-      <h1>PyScgen (Python Schema Generator) Service</h1>
+      <h1>PyScGen (Python Schema Generator) Service</h1>
       <h2> <a href="https://github.com/Salfiii/pyscgen">
             Backend Docs (pyscgen)
           </a></h2>
@@ -119,6 +194,22 @@ function App() {
             name="avro-editor"
             editorProps={{ $blockScrolling: true }}
           />
+          <p></p>
+          <div>Valid: {avroValidationResult.toString()}</div>
+          <p></p>
+          <div>Message: {avroValidationMessage}</div>
+        </div>
+        <div className="editor">
+          <h3>DUMMY DATA</h3>
+          <AceEditor
+            value={dummyData}
+            mode="json"
+            theme="tomorrow_night"
+            name="dummy-data-editor"
+            editorProps={{ $blockScrolling: true }}
+          />
+          <p></p>
+          <button onClick={() => generateDummyData(avroSchema)} >Refresh</button>
         </div>
       </div>
       <div className="options-container">
